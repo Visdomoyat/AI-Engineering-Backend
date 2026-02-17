@@ -1,0 +1,9 @@
+.env
+node_modules
+dist
+.env
+.DS_Store
+.vscode
+.cursorrules
+README1.md
+
