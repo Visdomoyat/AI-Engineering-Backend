@@ -1,12 +1,19 @@
 {
   "dependencies": {
-    "express": "^5.2.1"
+    "@supabase/supabase-js": "^2.96.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1"
   },
   "name": "ai-engineering-backend",
   "version": "1.0.0",
   "main": "dist/server.js",
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^25.2.3",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
