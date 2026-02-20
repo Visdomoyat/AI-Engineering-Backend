@@ -95,6 +95,18 @@ export const UserModel = {
 
     if (error) throw error;
   },
+
+  // Find all users (optionally select specific columns)
+  async findAll(columns: string[] = ['id', 'username']): Promise<Partial<User>[]> {
+    const supabase = getSupabaseClient();
+    const selectCols = columns.join(', ');
+    const { data, error } = await supabase
+      .from('users')
+      .select(selectCols);
+
+    if (error) throw error;
+    return (data ?? []) as Partial<User>[];
+  },
 };
 
 export default UserModel;

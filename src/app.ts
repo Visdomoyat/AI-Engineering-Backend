@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { getSupabaseClient } from './lib/supabase';
 import jwtRouter from './controllers/jwt';
 import authRouter from './controllers/auth';
+import userRouter from './controllers/user';
 import morgan from 'morgan';
 
 
@@ -31,6 +32,7 @@ export const createApp = () => {
 
   app.use('/api/jwt', jwtRouter);
   app.use('/api/auth', authRouter);
+  app.use('/api/users', userRouter);
   // TODO: Implement PDF upload endpoint
   app.post('/api/upload-pdf', (req: Request, res: Response) => {
     // This will accept PDF files (via multipart/form-data)

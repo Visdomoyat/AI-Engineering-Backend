@@ -12,6 +12,7 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.2.3",
