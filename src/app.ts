@@ -3,13 +3,44 @@ import { getSupabaseClient } from './lib/supabase';
 import jwtRouter from './controllers/jwt';
 import authRouter from './controllers/auth';
 import userRouter from './controllers/user';
+import uploadRouter from './controllers/upload';
 import morgan from 'morgan';
 
 
 export const createApp = () => {
   const app = express();
+  const defaultLocalOrigins = ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'];
+  const configuredOrigins = (process.env.FRONTEND_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim().replace(/^"|"$/g, ''))
+    .filter(Boolean);
+  const allowedOrigins = new Set([...defaultLocalOrigins, ...configuredOrigins]);
 
   // Global middleware
+  app.use((req: Request, res: Response, next) => {
+    const requestOrigin = req.headers.origin;
+
+    if (requestOrigin && allowedOrigins.has(requestOrigin)) {
+      res.header('Access-Control-Allow-Origin', requestOrigin);
+      res.header('Vary', 'Origin');
+      res.header('Access-Control-Allow-Credentials', 'true');
+    }
+
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header(
+      'Access-Control-Allow-Headers',
+      req.headers['access-control-request-headers']?.toString() || 'Content-Type, Authorization'
+    );
+
+    if (req.method === 'OPTIONS') {
+      if (requestOrigin && !allowedOrigins.has(requestOrigin)) {
+        return res.status(403).json({ error: 'CORS origin not allowed' });
+      }
+      return res.sendStatus(204);
+    }
+
+    next();
+  });
   app.use(express.json());
   app.use(morgan('dev'));
   // Basic health check
@@ -33,12 +64,7 @@ export const createApp = () => {
   app.use('/api/jwt', jwtRouter);
   app.use('/api/auth', authRouter);
   app.use('/api/users', userRouter);
-  // TODO: Implement PDF upload endpoint
-  app.post('/api/upload-pdf', (req: Request, res: Response) => {
-    // This will accept PDF files (via multipart/form-data)
-    // and trigger LightRAG + Supabase ingestion.
-    return res.status(501).json({ error: 'Not implemented yet' });
-  });
+  app.use('/api/upload-pdf', uploadRouter);
 
   // TODO: Implement chat endpoint
   app.post('/api/chat', (req: Request, res: Response) => {
@@ -59,4 +85,3 @@ export const createApp = () => {
 
   return app;
 };
-
