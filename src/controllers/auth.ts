@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { getErrorMessage } from '../lib/error';
 import UserModel from '../model/user';
 
 const router = Router();
@@ -34,7 +35,7 @@ router.post('/sign-up', async (req: Request, res: Response) => {
 
     return res.status(201).json({ token });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });
@@ -67,7 +68,7 @@ router.post('/sign-in', async (req: Request, res: Response) => {
 
     return res.status(200).json({ token });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });
