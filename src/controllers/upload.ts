@@ -3,6 +3,7 @@ import multer from 'multer';
 import verifyToken from '../middleware/verify-token';
 import upload from '../middleware/upload';
 import { getSupabaseClient } from '../lib/supabase';
+import { getErrorMessage } from '../lib/error';
 import DocumentModel from '../model/document';
 import { enqueueDocumentIngestion } from '../services/document-ingestion';
 
@@ -50,7 +51,7 @@ router.post('/', verifyToken, (req: Request, res: Response, next) => {
       return;
     }
 
-    const message = err instanceof Error ? err.message : 'Upload failed';
+    const message = getErrorMessage(err, 'Upload failed');
     res.status(400).json({ error: message });
   });
 }, async (req: Request, res: Response) => {
@@ -71,7 +72,7 @@ router.post('/', verifyToken, (req: Request, res: Response, next) => {
 
     const safeName = sanitizeFilename(file.originalname || 'document.pdf') || 'document.pdf';
     const storagePath = `${userId}/${Date.now()}-${safeName}`;
-    const bucket = process.env.SUPABASE_UPLOAD_BUCKET || 'documents';
+    const bucket = process.env.SUPABASE_UPLOAD_BUCKET || 'Document';
 
     const supabase = getSupabaseClient();
     const { error: storageError } = await supabase.storage
@@ -104,7 +105,7 @@ router.post('/', verifyToken, (req: Request, res: Response, next) => {
       document: savedDocument,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });
@@ -119,7 +120,7 @@ router.get('/', verifyToken, async (req: Request, res: Response) => {
     const documents = await DocumentModel.findAllByUserId(userId);
     return res.json({ documents });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });
@@ -155,7 +156,7 @@ router.delete('/:documentId', verifyToken, async (req: Request, res: Response) =
 
     return res.json({ message: 'Document deleted successfully.' });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });

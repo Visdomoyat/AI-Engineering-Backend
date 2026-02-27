@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { getErrorMessage } from '../lib/error';
 import UserModel, { toPublicUser } from '../model/user';
 import verifyToken from '../middleware/verify-token';
 
@@ -12,7 +13,7 @@ router.get('/', verifyToken, async (req: Request, res: Response) => {
     const users = await UserModel.findAll(['id', 'username']);
     return res.json(users);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });
@@ -33,7 +34,7 @@ router.get('/:userId', verifyToken, async (req: Request, res: Response) => {
 
     return res.json({ user: toPublicUser(user) });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = getErrorMessage(err);
     return res.status(500).json({ error: message });
   }
 });
