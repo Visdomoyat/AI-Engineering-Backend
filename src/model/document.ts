@@ -58,6 +58,34 @@ export const DocumentModel = {
     return data as Document;
   },
 
+  async findByIdsForUser(documentIds: string[], userId: string): Promise<Document[]> {
+    if (documentIds.length === 0) return [];
+    const supabase = getSupabaseClient();
+
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('user_id', userId)
+      .in('id', documentIds);
+
+    if (error) throw error;
+    return (data ?? []) as Document[];
+  },
+
+  async findIndexedByUserId(userId: string): Promise<Document[]> {
+    const supabase = getSupabaseClient();
+
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'indexed')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []) as Document[];
+  },
+
   async updateStatus(documentId: string, status: DocumentStatus): Promise<Document> {
     const supabase = getSupabaseClient();
 
