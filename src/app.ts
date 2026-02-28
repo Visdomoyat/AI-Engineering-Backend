@@ -1,9 +1,12 @@
 import express, { Request, Response } from 'express';
+import { getErrorMessage } from './lib/error';
 import { getSupabaseClient } from './lib/supabase';
 import jwtRouter from './controllers/jwt';
 import authRouter from './controllers/auth';
 import userRouter from './controllers/user';
 import uploadRouter from './controllers/upload';
+import chatRouter from './controllers/chat';
+import handbookRouter from './controllers/handbook';
 import morgan from 'morgan';
 
 
@@ -56,7 +59,7 @@ export const createApp = () => {
       if (error) return res.status(500).json({ ok: false, error: error.message });
       return res.json({ ok: true, buckets: data.map((b) => b.name) });
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Unknown error';
+      const message = getErrorMessage(e);
       return res.status(500).json({ ok: false, error: message });
     }
   });
@@ -65,23 +68,8 @@ export const createApp = () => {
   app.use('/api/auth', authRouter);
   app.use('/api/users', userRouter);
   app.use('/api/upload-pdf', uploadRouter);
-
-  // TODO: Implement chat endpoint
-  app.post('/api/chat', (req: Request, res: Response) => {
-    // This will:
-    // 1. Take a user message
-    // 2. Retrieve relevant context from LightRAG / Supabase
-    // 3. Call the LLM (Grok 4.1) with that context
-    // 4. Return the model response
-    return res.status(501).json({ error: 'Not implemented yet' });
-  });
-
-  // TODO: Implement handbook generation endpoint
-  app.post('/api/handbook', (req: Request, res: Response) => {
-    // This will orchestrate the LongWriter-style multi-step
-    // generation of a 20,000+ word handbook.
-    return res.status(501).json({ error: 'Not implemented yet' });
-  });
+  app.use('/api/chat', chatRouter);
+  app.use('/api/handbook', handbookRouter);
 
   return app;
 };
